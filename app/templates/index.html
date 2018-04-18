@@ -1,9 +1,8 @@
 {% extends "bootstrap/base.html" %}
-HEY!!!
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block title %}
-  tinyurl
+  URL ensmaller
 {% endblock %}
 
 {% block content %}
@@ -12,6 +11,13 @@ HEY!!!
   <div class="row">
     <div class="col-md-4">
       {{ wtf.quick_form(form) }}
+      {% with messages = get_flashed_messages() %} 
+      {% if messages %}
+        {% for message in messages %}
+          <div>{{ message }}</div>
+        {% endfor %}
+      {% endif %} 
+      {% endwith %}
     </div>
   </div>
 {% endblock %}
