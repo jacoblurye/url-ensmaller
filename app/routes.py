@@ -20,7 +20,7 @@ def success():
 
 @app.route('/<key>', methods=['GET'])
 def lookup(key):
-    long_url = URLMap.findURL(key, setcache=True)
+    long_url = URLMap.findURL(key)
     if long_url:
         return redirect(long_url)
     return 'Error – URL not found'

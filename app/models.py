@@ -16,7 +16,7 @@ class URLMap:
       If the alias already maps to a different URL, return False.
       Otherwise, insert the alias if necessary and return True.
     """
-    record = URLMap.findURL(alias)
+    record = URLMap.findURL(alias, setcache=False)
     if record and record != url: 
       return False
     if not record:
@@ -28,7 +28,7 @@ class URLMap:
     return True
 
   @staticmethod
-  def findURL(alias, setcache=False):
+  def findURL(alias, setcache=True):
     """
       Return full URL associated with alias if it exists.
     """
