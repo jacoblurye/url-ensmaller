@@ -36,11 +36,12 @@ class URLMap:
     if cached_url: 
       print('CACHE HIT!')
       return cached_url
+
     record = URLMap.collection.find_one({'alias': alias})
     if record:
       print('CACHE MISS!')
       url = record['url']
-      if setcache and:
+      if setcache:
         cache.set(alias, url, timeout=app.config['CACHE_TIMEOUT'])
       return url
 
