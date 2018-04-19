@@ -7,7 +7,4 @@ class URLForm(FlaskForm):
     url = StringField('url', 
                       validators=[DataRequired()], 
                       render_kw={"placeholder": "url"})
-    alias = StringField('alias', 
-                        validators=[DataRequired(), Length(min=4)], 
-                        render_kw={"placeholder": "alias"})
     submit = SubmitField('Submit')

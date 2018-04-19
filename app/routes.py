@@ -8,14 +8,13 @@ def index():
     form = URLForm()
     if form.validate_on_submit():
         # TODO: validate form.inURL.data
-        if not URLMap.insert(form.alias.data, form.url.data):
-            return jsonify(success=False)
-        return jsonify(success=True, alias=form.alias.data})
+        alias = URLMap.insert(form.url.data)
+        return jsonify(success=True, alias=alias)
     return render_template('index.html', form=form)
 
-@app.route('/<key>', methods=['GET'])
-def lookup(key):
-    long_url = URLMap.findURL(key)
+@app.route('/<alias>', methods=['GET'])
+def lookup(alias):
+    long_url = URLMap.find_url(alias)
     if long_url:
         return redirect(long_url)
     return 'Error – URL not found'

@@ -1,51 +1,69 @@
+import random
+import string
 from app import app, mongo, cache
 from flask import escape
 
 ctx = app.app_context()
 ctx.push()
 
-# TODO: Add in-memory cache support
+ascii_chars = string.ascii_lowercase + string.ascii_uppercase
 
 class URLMap:
   collection = mongo.db.urls
 
   @staticmethod
-  def insert(alias, url):
+  def insert(url):
     """
-      Try to insert a new alias to URL mapping in the db.
-      If the alias already maps to a different URL, return False.
-      Otherwise, insert the alias if necessary and return True.
+      Try to insert a URL into the db if it isn't already present,
+      returning the randomly generated alias.
     """
-    record = URLMap.findURL(alias, setcache=False)
-    updated = not (record and record != url)
-    if not record:
-      cache.set(alias, url, timeout=app.config['CACHE_TIMEOUT'])
-      URLMap.collection.insert_one({
-        'alias': alias,
-        'url' : url
-      })
-    return updated
+    # Try to get existing alias
+    alias = URLMap.find_alias(url)
+    if alias:
+      return alias
+
+    # Generate new alias
+    alias = URLMap.__random_alias()
+    cache.set(alias, url, timeout=app.config['CACHE_TIMEOUT'])
+    URLMap.collection.insert_one({
+      'alias': alias,
+      'url' : url
+    })
+    return alias
 
   @staticmethod
-  def findURL(alias, setcache=True):
+  def find_url(alias, setcache=True):
     """
       Return full URL associated with alias if it exists.
     """
     cached_url = cache.get(alias)
     if cached_url: 
-      print('CACHE HIT!')
       return cached_url
 
     record = URLMap.collection.find_one({'alias': alias})
     if record:
-      print('CACHE MISS!')
       url = record['url']
       if setcache:
         cache.set(alias, url, timeout=app.config['CACHE_TIMEOUT'])
       return url
 
   @staticmethod
-  def suggest(alias):
-    pass
+  def find_alias(url):
+    """
+      Return alias associated with URL if it exists.
+    """
+    # TODO: caching?
+    record = URLMap.collection.find_one({'url': url})
+    if record:
+      alias = record['alias']
+      return alias
+
+  @staticmethod
+  def __random_alias(length=6):
+    alias = ''.join(random.choice(ascii_chars) for _ in range(length))
+    if not URLMap.find_alias(alias):
+      return alias
+    return URLMap.__random_alias()
+    
 
 ctx.pop()
