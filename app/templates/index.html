@@ -4,19 +4,55 @@
 {% block styles %}
   {{ super() }}
   <style>
+    @import url('https://fonts.googleapis.com/css?family=Share+Tech+Mono');
+
+    * {
+      font-family: 'Share Tech Mono', monospace;
+      color: lightgrey;
+      background-color: #496C89;
+    }
+
+    *:focus, *:active {
+      outline: none;
+    }
+
     h3 {
       text-align: center;
+      font-weight: bold;
+    }
+
+    a {
+      color: lightgrey;
+    }
+
+    input {
+      display: table-cell;
+      border: none;
+      border-radius: 5px;
+      fill: #496C89;
+      height: 30px;
+      color: black;
+      background-color: lightgrey;
+    }
+
+    .btn:focus {
+      background-color: #aaa;
+      outline: none;
     }
 
     #url {
-      display: table-cell;
       width: 100%;
-      padding: 0 !important;
+      border-radius: 5px;
+      background-color: #eee;
+    }
+
+    #new-url {
+      height: 30px;
     }
 
     #error {
       display: table-cell;
-      color: red;
+      color: #ff6969;
     }
   </style>
 {% endblock %}
@@ -43,8 +79,8 @@
       return `
         <form method="POST">
           {{ form.csrf_token }}
-            <div class="col-xs-10">{{ form.url }}</div>
-            <div class="col-xs-2"><input id="ensmall-btn" type="submit" value="Ensmall it!"></div>
+          <div class="col-xs-10">{{ form.url }}</div>
+          <div class="col-xs-2 submit"><input id="ensmall-btn" class="btn" type="submit" value="Ensmall it!"></div>
         </form>
       `
     }
@@ -53,8 +89,8 @@
       const new_url = location.href + alias;
       return `
         <div class="row success">
-          <div class="col-xs-8">New URL: <a href="` + new_url + `">` + new_url + `</a></div>
-          <button id="redo" class="col-xs-4">Ensmall another?</button>
+          <div class="col-xs-8" id="new-url">New URL: <a href="` + new_url + `">` + new_url + `</a></div>
+          <div class="col-xs-4 submit"><input id="redo" class="btn" type="submit" value="Ensmall another?"></div>
         </div>
       `
     }
@@ -64,7 +100,7 @@
       $content = $("#content");
       $content.append(formHTML());
       
-      // Inject CSRF token into our AJAX request.
+      // Inject CSRF token into our AJAX requests
       $.ajaxSetup({
         beforeSend: function (xhr, settings) {
           if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
