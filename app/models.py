@@ -17,15 +17,14 @@ class URLMap:
       Otherwise, insert the alias if necessary and return True.
     """
     record = URLMap.findURL(alias, setcache=False)
-    if record and record != url: 
-      return False
+    updated = not (record and record != url)
     if not record:
       cache.set(alias, url, timeout=app.config['CACHE_TIMEOUT'])
       URLMap.collection.insert_one({
         'alias': alias,
         'url' : url
       })
-    return True
+    return updated
 
   @staticmethod
   def findURL(alias, setcache=True):

@@ -1,16 +1,24 @@
 {% extends "bootstrap/base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
+{% block styles %}
+  {{ super() }}
+  <style>
+    .success {
+      width: 50%
+    }
+  </style>
+{% endblock %}
+
 {% block title %}
   URL ensmaller
 {% endblock %}
 
 {% block content %}
-  <h3>shorten long urls</h3>
-
   <div class="row">
-    <div class="col-md-4">
-      {{ wtf.quick_form(form) }}
+    <div class="col-md-4 col-md-offset-4">
+      <h3>shorten long urls</h3>
+      <div id="content"></div>
       {% with messages = get_flashed_messages() %} 
       {% if messages %}
         {% for message in messages %}
@@ -20,4 +28,67 @@
       {% endwith %}
     </div>
   </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script type='text/javascript'>
+    const formHTML = () => {
+      return `
+        <form method="POST">
+          {{ form.csrf_token }}
+          <div>{{ form.url}}
+            <!--div>{{ 'https://www.small.io/' }} {{ form.alias }}</div-->
+            <input id="ensmall-btn" type="submit" value="Ensmall it!">
+          </div>
+        </form>
+      `
+    }
+
+    const successHTML = (alias) => {
+      return `
+        <div class="success">
+          <div>New URL: https://www.small.io/` + alias + `</div>
+          <div class='btn-primary' id="redo">Ensmall another?</div>
+        </div>
+      `
+    }
+
+    $(document).ready(() => {
+      $content = $("#content");
+      $content.append(formHTML());
+      
+      // Inject CSRF token into our AJAX request.
+      $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", "{{ form.csrf_token._value() }}")
+          }
+        }
+      })
+
+      // Handle URL submission
+      $content.on('submit', 'form', (e) => {
+        $.ajax({
+          type: "POST",
+          url: "{{ url_for('index') }}",
+          data: $('form').serialize(),
+          success: function (data) {
+            console.log(data.success)
+            if (data.success) {
+              $('form').remove()
+              $content.append(successHTML(data.alias))
+            }
+          }
+        });
+        e.preventDefault();
+      });
+
+      // Handle return to URL form from success
+      $content.on('click', '#redo', () => {
+        $('.success').remove()
+        $content.append(formHTML)
+      })
+    })
+  </script>
 {% endblock %}
