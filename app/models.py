@@ -18,9 +18,8 @@ class URLMap:
       returning the randomly generated alias.
     """
     # Try to get existing alias
-    alias = URLMap.find_alias(url)
-    if alias:
-      return alias
+    cached_alias = URLMap.find_alias(url)
+    if cached_alias: return cached_alias
 
     # Generate new alias
     alias = URLMap.__random_alias()
@@ -36,10 +35,11 @@ class URLMap:
     """
       Return full URL associated with alias if it exists.
     """
+    # Check cache for URL
     cached_url = cache.get(alias)
-    if cached_url: 
-      return cached_url
+    if cached_url: return cached_url
 
+    # Find URL in db
     record = URLMap.collection.find_one({'alias': alias})
     if record:
       url = record['url']
@@ -60,10 +60,11 @@ class URLMap:
 
   @staticmethod
   def __random_alias(length=6):
+    """
+      Generate a random alphabetic string of a specified length
+      that hasn't already been used as a URL alias.
+    """
     alias = ''.join(random.choice(ascii_chars) for _ in range(length))
-    if not URLMap.find_alias(alias):
-      return alias
-    return URLMap.__random_alias()
-    
+    return URLMap.__random_alias() if URLMap.find_alias(alias) else alias
 
 ctx.pop()
