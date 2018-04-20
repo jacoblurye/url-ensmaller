@@ -19,4 +19,4 @@ def lookup(alias):
     long_url = URLMap.find_url(alias)
     if long_url:
         return redirect(long_url)
-    return 'Error - URL not found'
+    return redirect(url_for('index'))
