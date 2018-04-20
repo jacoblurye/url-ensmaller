@@ -6,7 +6,7 @@
   <style>
     @import url('https://fonts.googleapis.com/css?family=Share+Tech+Mono');
 
-    * {
+    body {
       font-family: 'Share Tech Mono', monospace;
       color: lightgrey;
       background-color: #496C89;
@@ -66,7 +66,7 @@
       border: none;
     }
 
-    #content {
+    #page {
       margin: auto;
       width: 525px;
     }
@@ -85,6 +85,8 @@
 
     #error {
       display: table-cell;
+      padding-top: 5px;
+      margin-left: 5px;
       color: #ff6969;
     }
 
@@ -99,11 +101,11 @@
 {% endblock %}
 
 {% block content %}
-  <div class="row">
+  <div id="page" class="row">
       <h3>URL Ensmaller</h3>
       <div id="content" class="row">
       </div>
-      <div id="error" class="col-md-12"></div>
+      <div id="error" class="col-xs-8"></div>
       <input id="clipboard"></input>
   </div>
 {% endblock %}
