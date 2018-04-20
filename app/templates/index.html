@@ -22,7 +22,11 @@
     }
 
     a {
-      color: lightgrey;
+      color: white;
+    }
+
+    div {
+      margin: auto;
     }
 
     input {
@@ -36,9 +40,29 @@
       align-self: right;
     }
 
+    .btn {
+      width: 100px;
+      float: left;
+    }
+
     .btn:focus {
       background-color: #aaa;
       outline: none;
+    }
+
+    .url-div {
+      width: 350px;
+    }
+
+    #copy {
+      display: table-cell;
+      margin: auto;
+      border: none;
+    }
+
+    #content {
+      margin: auto;
+      width: 525px;
     }
 
     #url {
@@ -57,6 +81,10 @@
       display: table-cell;
       color: #ff6969;
     }
+
+    #clipboard {
+      display: none;
+    }
   </style>
 {% endblock %}
 
@@ -66,12 +94,11 @@
 
 {% block content %}
   <div class="row">
-    <div class="col-md-4 col-md-offset-4">
       <h3>URL Ensmaller</h3>
       <div id="content" class="row">
       </div>
       <div id="error" class="col-md-12"></div>
-    </div>
+      <input id="clipboard"></input>
   </div>
 {% endblock %}
 
@@ -82,8 +109,12 @@
       return `
         <form method="POST">
           {{ form.csrf_token }}
-          <div class="col-xs-8">{{ form.url }}</div>
-          <div class="col-xs-4"><input id="ensmall-btn" class="btn" type="submit" value="Ensmall it!"></div>
+          <div class="col-xs-9 text-right">
+            <div class="url-div">{{ form.url }}</div>
+          </div>
+          <div class="col-xs-2 text-left">
+            <input id="ensmall-btn" class="btn" type="submit" value="Ensmall!">
+          </div>
         </form>
       `
     }
@@ -92,13 +123,22 @@
       const new_url = location.href + alias;
       return `
         <div class="success">
-          <div class="col-xs-8"><div id="new-url">New URL: <a href="` + new_url + `">` + new_url + `</a></div></div>
-          <div class="cols-xs-4"><input id="redo" class="btn" type="submit" value="Ensmall another?"></div>
+          <div class="col-xs-9 text-right">
+            <div id="new-url" class="url-div">
+              <strong>Copy link: </strong>
+              <a href="` + new_url + `">` + new_url + `</a>
+            </div>
+          </div>
+          <div class="col-xs-2 text-left">
+            <input id="redo" class="btn" type="submit" value="Another?">
+          </div>
         </div>
       `
     }
 
     $(document).ready(() => {
+      $copy = $("#copy");
+      $clipboard = $("#clipboard");
       $error = $("#error");
       $content = $("#content");
       $content.append(formHTML());
@@ -119,10 +159,9 @@
           url: "{{ url_for('index') }}",
           data: $('form').serialize(),
           success: function (data) {
-            console.log(data.success)
             if (data.success) {
-              $('form').remove()
               $error.text("")
+              $('form').remove()
               $content.append(successHTML(data.alias))
             } else {
               $error.text("Please enter a valid URL.")
@@ -136,6 +175,15 @@
       $content.on('click', '#redo', () => {
         $('.success').remove()
         $content.append(formHTML)
+      })
+
+      // Copy generated alias to clipboard
+      $content.on('click', "a", (e) => {
+        e.preventDefault();
+        $clipboard.css('display', 'block');
+        $clipboard.val($('a').text()).select()
+        document.execCommand('copy')
+        $clipboard.css('display', 'none')
       })
     })
   </script>
