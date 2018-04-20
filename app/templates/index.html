@@ -25,6 +25,12 @@
       color: white;
     }
 
+    a:hover, a:active {
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+    }
+
     div {
       margin: auto;
     }
@@ -125,7 +131,7 @@
         <div class="success">
           <div class="col-xs-9 text-right">
             <div id="new-url" class="url-div">
-              <strong>Copy link: </strong>
+              <strong>Click to copy: </strong>
               <a href="` + new_url + `">` + new_url + `</a>
             </div>
           </div>
@@ -184,6 +190,7 @@
         $clipboard.val($('a').text()).select()
         document.execCommand('copy')
         $clipboard.css('display', 'none')
+        $('strong').text('Copied:')
       })
     })
   </script>
